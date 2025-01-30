@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8" />
+    <title>CGOL</title>
+    <style>
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        background-color: #335;
+      }
+      body {
+        height: 100dvh;
+        width: 100dvw;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      rect {
+        transition: all 50ms linear;
+        stroke-width: 1;
+        stroke: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <svg xmlns="http://www.w3.org/2000/svg" id="svg"></svg>
+    <script src="screen.js"></script>
+    <script>
+      const screen = new SvgScreen("svg", 50, 50, 20);
+      for (let i = 10; i < 30; ++i) {
+        screen.circle(25, 25, i);
+      }
+    </script>
+  </body>
+</html>

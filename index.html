@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8" />
+    <title>CGOL</title>
+    <style>
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        height: 100dvh;
+        width: 100dvw;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      rect {
+        transition: all 500ms linear;
+      }
+    </style>
+  </head>
+  <body>
+    <svg xmlns="http://www.w3.org/2000/svg" id="svg"></svg>
+
+    <script>
+      const screenWidthInCells = 100;
+      const cellWidth = 10;
+      const screenWidthInPixel = screenWidthInCells * cellWidth;
+      const cells = new Uint8Array(screenWidthInCells * screenWidthInCells);
+      const rects = new Array(screenWidthInCells * screenWidthInCells);
+      const neighbors = [
+        [-1, -1],
+        [0, -1],
+        [1, -1],
+        [-1, 0],
+        [1, 0],
+        [-1, 1],
+        [0, 1],
+        [1, 1],
+      ];
+      let svg;
+
+      function getIndex(x, y) {
+        return y * screenWidthInCells + x;
+      }
+
+      function getCell(x, y) {
+        if (
+          x < 0 ||
+          y < 0 ||
+          x >= screenWidthInCells ||
+          y >= screenWidthInCells
+        ) {
+          return 0;
+        }
+        return cells[getIndex(x, y)];
+      }
+
+      function setCell(x, y, value) {
+        cells[getIndex(x, y)] = value;
+        rects[getIndex(x, y)].setAttribute("fill", value ? "#fff" : "#335");
+      }
+
+      function randomizeCells() {
+        for (let i = 0; i < cells.length; ++i) {
+          if (Math.random() > 0.9) {
+            cells[i] = 1;
+            rects[i].setAttribute("fill", "#fff");
+          }
+        }
+      }
+
+      function neighborCount(x, y) {
+        let count = 0;
+        for (const neighbor of neighbors) {
+          count += getCell(x + neighbor[0], y + neighbor[1]);
+        }
+        return count;
+      }
+
+      function generationMove() {
+        for (let x = 0; x < screenWidthInCells; ++x) {
+          for (let y = 0; y < screenWidthInCells; ++y) {
+            const neighborLiveCellCount = neighborCount(x, y);
+            const currentCell = getCell(x, y);
+            if (
+              currentCell &&
+              (neighborLiveCellCount === 2 || neighborLiveCellCount === 3)
+            ) {
+              setCell(x, y, 1);
+            } else if (!currentCell && neighborLiveCellCount === 3) {
+              setCell(x, y, 1);
+            } else {
+              setCell(x, y, 0);
+            }
+          }
+        }
+      }
+
+      function initGame() {
+        svg = document.getElementById("svg");
+        svg.setAttribute("width", screenWidthInPixel);
+        svg.setAttribute("height", screenWidthInPixel);
+        svg.setAttribute(
+          "viewBox",
+          `0 0 ${screenWidthInPixel} ${screenWidthInPixel}`
+        );
+        svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        document.body.appendChild(svg);
+        for (let x = 0; x < screenWidthInCells; ++x) {
+          for (let y = 0; y < screenWidthInCells; ++y) {
+            const rect = document.createElementNS(
+              "http://www.w3.org/2000/svg",
+              "rect"
+            );
+            rect.setAttribute("x", `${x * cellWidth}`);
+            rect.setAttribute("y", `${y * cellWidth}`);
+            rect.setAttribute("width", `${cellWidth}`);
+            rect.setAttribute("height", `${cellWidth}`);
+            rect.setAttribute("fill", "#335");
+            rect.setAttribute("id-x", x);
+            rect.setAttribute("id-y", y);
+            rects[getIndex(x, y)] = rect;
+            svg.appendChild(rect);
+          }
+        }
+        svg.addEventListener("click", (event) => {
+          const x = Number(event.srcElement.getAttribute("id-x"));
+          const y = Number(event.srcElement.getAttribute("id-y"));
+          cell = getCell(x, y);
+          setCell(x, y, cell ? 0 : 1);
+        });
+      }
+
+      function playGame() {}
+
+      initGame();
+      randomizeCells();
+      setInterval(() => generationMove(), 50);
+    </script>
+  </body>
+</html>
